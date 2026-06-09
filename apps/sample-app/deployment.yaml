@@ -30,7 +30,7 @@ spec:
       - name: nginx-web
         image: nginx:1.25.4-alpine # FIX #1: Locked version tag using a lightweight alpine image
         ports:
-        - containerPort: 80
+        - containerPort: 8080
         # FIX #3 & #4: Implementing Strong Pod Security Context Standards
         securityContext:
           readOnlyRootFilesystem: true  # Prevents modifications to the container OS filesystem

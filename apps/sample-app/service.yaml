@@ -7,6 +7,6 @@ spec:
   type: ClusterIP          # Keeps it internal until we hook up our ingress controllers later
   ports:
   - port: 80
-    targetPort: 80
+    targetPort: 8080
   selector:
     app: portfolio-web
