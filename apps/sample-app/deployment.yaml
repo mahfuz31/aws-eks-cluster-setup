@@ -6,7 +6,7 @@ metadata:
   labels:
     app: portfolio-web
 spec:
-  replicas: 2              # Tells EKS to maintain exactly two pods for high availability
+  replicas: 3              # Tells EKS to maintain exactly two pods for high availability
   selector:
     matchLabels:
       app: portfolio-web
