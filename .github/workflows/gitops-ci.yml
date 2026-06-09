@@ -1,0 +1,26 @@
+name: GitOps Manifest CI
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - 'apps/**'  # Only trigger this pipeline when files inside the apps/ directory are modified
+
+jobs:
+  validate-and-lint:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    # 1. Validate that the YAML syntax is completely valid
+    - name: Validate YAML Syntax
+      run: |
+        python3 -c "import yaml, sys; [yaml.safe_load_all(open(f)) for f in ['apps/sample-app/deployment.yaml', 'apps/sample-app/service.yaml']]"
+
+    # 2. Run a security scanner (Kube-linter) to check for DevOps best practices
+    - name: Scan Manifests with Kube-Linter
+      uses: stackrox/kube-linter-action@v1.0.4
+      with:
+        directory: apps/sample-app
+        # This will flag things like running containers as root, missing resource limits, etc.
