@@ -6,7 +6,7 @@ metadata:
   labels:
     app: portfolio-web
 spec:
-  replicas: 3              # Tells EKS to maintain exactly two pods for high availability
+  replicas: 3
   selector:
     matchLabels:
       app: portfolio-web
@@ -15,11 +15,28 @@ spec:
       labels:
         app: portfolio-web
     spec:
+      # FIX #2: Spread pods across different AWS nodes for High Availability
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - portfolio-web
+            topologyKey: "kubernetes.io/hostname"
       containers:
       - name: nginx-web
-        image: nginx:latest  # Simple, lightweight web image to test our routing
+        image: nginx:1.25.4-alpine # FIX #1: Locked version tag using a lightweight alpine image
         ports:
         - containerPort: 80
+        # FIX #3 & #4: Implementing Strong Pod Security Context Standards
+        securityContext:
+          readOnlyRootFilesystem: true  # Prevents modifications to the container OS filesystem
+          runAsNonRoot: true            # Restricts container process from running as root
+          runAsUser: 101                # The standard non-root user ID for nginx alpine images
+          allowPrivilegeEscalation: false # Stops processes from gaining higher OS privileges
         resources:
           limits:
             memory: "256Mi"
@@ -27,3 +44,15 @@ spec:
           requests:
             memory: "128Mi"
             cpu: "250m"
+        # Note: Nginx requires writing temporary cache files. Since rootfs is read-only now, 
+        # we mount a secure temporary in-memory space for it.
+        volumeMounts:
+        - mountPath: /var/cache/nginx
+          name: nginx-cache
+        - mountPath: /var/run
+          name: nginx-run
+      volumes:
+      - name: nginx-cache
+        emptyDir: {}
+      - name: nginx-run
+        emptyDir: {}
