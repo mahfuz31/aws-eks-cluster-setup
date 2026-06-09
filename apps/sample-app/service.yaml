@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-app-service
+  namespace: default
+spec:
+  type: ClusterIP          # Keeps it internal until we hook up our ingress controllers later
+  ports:
+  - port: 80
+    targetPort: 80
+  selector:
+    app: portfolio-web

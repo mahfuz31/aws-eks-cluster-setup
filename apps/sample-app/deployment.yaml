@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-app-deployment
+  namespace: default
+  labels:
+    app: portfolio-web
+spec:
+  replicas: 2              # Tells EKS to maintain exactly two pods for high availability
+  selector:
+    matchLabels:
+      app: portfolio-web
+  template:
+    metadata:
+      labels:
+        app: portfolio-web
+    spec:
+      containers:
+      - name: nginx-web
+        image: nginx:latest  # Simple, lightweight web image to test our routing
+        ports:
+        - containerPort: 80
+        resources:
+          limits:
+            memory: "256Mi"
+            cpu: "500m"
+          requests:
+            memory: "128Mi"
+            cpu: "250m"
